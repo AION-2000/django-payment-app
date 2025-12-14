@@ -1,0 +1,12 @@
+Django>=4.2.0
+python-decouple>=3.8
+stripe>=5.4.0
+django-allauth>=0.54.0
+django-crispy-forms>=2.0
+crispy-bootstrap5>=0.7
+psycopg2-binary>=2.9.0
+PyJWT>=2.8.0
+cryptography>=41.0.0
+django-recaptcha>=3.0.0
+pyOpenSSL>=25.3.0
+Werkzeug>=3.1.4

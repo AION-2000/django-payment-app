@@ -1,0 +1,171 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Make a Payment{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    #payment-element {
+        margin-bottom: 20px;
+    }
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border-left-color: #09f;
+        animation: spin 1s ease infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Make a Payment</h3>
+                </div>
+                <div class="card-body">
+                    <form id="payment-form" class="payment-form">
+                        {% csrf_token %}
+                        <div id="amount-section">
+                            {{ form|crispy }}
+                        </div>
+                        
+                        <div id="payment-section" style="display: none;">
+                            <div class="mb-3">
+                                <label for="payment-element" class="form-label">Payment Information</label>
+                                <div id="payment-element" class="form-control">
+                                    <!-- A Stripe PaymentElement will be inserted here. -->
+                                </div>
+                                <div id="error-message" role="alert" class="text-danger mt-2"></div>
+                            </div>
+                        </div>
+                        
+                        <button id="submit-button" class="btn btn-primary w-100">
+                            <span id="button-text">Proceed to Payment</span>
+                            <div id="spinner" class="spinner d-none"></div>
+                        </button>
+                        <div id="payment-message" class="mt-3"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stripe = Stripe('{{ stripe_publishable_key }}');
+        const paymentForm = document.getElementById('payment-form');
+        const amountSection = document.getElementById('amount-section');
+        const paymentSection = document.getElementById('payment-section');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const spinner = document.getElementById('spinner');
+        const paymentMessage = document.getElementById('payment-message');
+        const errorMessage = document.getElementById('error-message');
+        
+        let elements;
+        let clientSecret;
+        let paymentId;
+        
+        // Handle initial form submission (amount)
+        paymentForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            if (!clientSecret) {
+                // First submission - get amount and create payment intent
+                const formData = new FormData(paymentForm);
+                
+                try {
+                    const response = await fetch('{% url "payments:payment" %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        },
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        clientSecret = data.client_secret;
+                        paymentId = data.payment_id;
+                        
+                        // Hide amount section and show payment section
+                        amountSection.style.display = 'none';
+                        paymentSection.style.display = 'block';
+                        buttonText.textContent = 'Pay Now';
+                        
+                        // Create and mount Stripe Elements
+                        const appearance = { theme: 'stripe' };
+                        elements = stripe.elements({ appearance, clientSecret });
+
+                        const paymentElement = elements.create('payment', {
+                            layout: 'tabs' // Can be 'tabs', 'accordion', or 'auto'
+                        });
+                        
+                        paymentElement.mount('#payment-element');
+                    } else {
+                        paymentMessage.textContent = data.error || 'An error occurred. Please try again.';
+                        paymentMessage.classList.add('text-danger');
+                    }
+                } catch (error) {
+                    paymentMessage.textContent = 'An error occurred. Please try again.';
+                    paymentMessage.classList.add('text-danger');
+                }
+            } else {
+                // Second submission - confirm payment
+                setLoading(true);
+                errorMessage.textContent = '';
+                
+                        const {error} = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: `${window.location.origin}/payments/success/?payment_id=${paymentId}`,
+                    },
+                });
+
+                if (error.type === "card_error" || error.type === "validation_error") {
+                    errorMessage.textContent = error.message;
+                } else {
+                    paymentMessage.textContent = "An unexpected error occurred.";
+                    paymentMessage.classList.add('text-danger');
+                    
+                    // Redirect to failure page
+                    window.location.href = `{% url "payments:failure" %}?payment_id=${paymentId}`;
+                }
+
+                setLoading(false);
+            }
+        });
+        
+        // Show loading state
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitButton.disabled = true;
+                spinner.classList.remove('d-none');
+                buttonText.classList.add('d-none');
+            } else {
+                submitButton.disabled = false;
+                spinner.classList.add('d-none');
+                buttonText.classList.remove('d-none');
+            }
+        }
+    });
+</script>
+{% endblock %}

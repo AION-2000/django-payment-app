@@ -1,0 +1,138 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% load socialaccount %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Set a light grey background for the whole page */
+    body {
+        background-color: #f4f5f7;
+    }
+
+    /* Style the main card */
+    .login-card {
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-top: 5rem;
+    }
+
+    /* Style the card header */
+    .login-card .card-header {
+        background-color: #3b5998; /* A dark blue header */
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        border-bottom: none;
+    }
+
+    /* Style the social login buttons */
+    .btn-social {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px; /* Space between icon and text */
+        font-weight: 500;
+        padding: 0.6rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Custom style for the "OR" divider */
+    .divider {
+        text-align: center;
+        position: relative;
+        margin: 1.5rem 0;
+    }
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #dee2e6;
+    }
+    .divider span {
+        position: relative;
+        padding: 0 15px;
+        background-color: #f4f5f7; /* Match the body background */
+        color: #6c757d;
+    }
+    
+    /* Style the main sign-in button */
+    .btn-signin {
+        background-color: #3b5998;
+        border-color: #3b5998;
+        padding: 0.75rem;
+        font-weight: 500;
+    }
+    .btn-signin:hover {
+        background-color: #2d4373;
+        border-color: #2d4373;
+    }
+
+    /* Link styling at the bottom */
+    .signup-link {
+        color: #3b5998;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .signup-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card login-card">
+                <div class="card-header">
+                    Sign In
+                </div>
+                <div class="card-body p-4">
+                    
+                    <!-- Social Login Buttons -->
+                    <a href="{% provider_login_url 'google' process='login' %}" class="btn btn-danger btn-social w-100">
+                        <i class="fab fa-google"></i> Sign in with Google
+                    </a>
+                    
+                    <!-- Example of a Facebook button (you would need to configure it in settings) -->
+                    <!-- <a href="#" class="btn btn-primary btn-social w-100">
+                        <i class="fab fa-facebook-f"></i> Sign in with Facebook
+                    </a> -->
+
+                    <!-- Divider -->
+                    <div class="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <!-- Standard Login Form -->
+                    <form method="post" action="{% url 'account_login' %}">
+                        {% csrf_token %}
+                        
+                        {{ form|crispy }}
+
+                        <!-- Hidden field for redirect after login -->
+                        {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-signin" type="submit">Sign In</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Sign Up Link -->
+            <div class="text-center mt-3">
+                <p>Don't have an account? <a href="{% url 'account_signup' %}" class="signup-link">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

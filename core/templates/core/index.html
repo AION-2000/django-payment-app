@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron bg-light p-5 rounded mb-4">
+            <h1 class="display-4">Welcome to Django Payment App</h1>
+            <p class="lead">A secure and reliable platform for processing payments with Stripe.</p>
+            <hr class="my-4">
+            <p>Sign up today to start making payments easily and securely.</p>
+            {% if not user.is_authenticated %}
+            <a class="btn btn-primary btn-lg" href="{% url 'account_signup' %}" role="button">Sign Up Now</a>
+            {% else %}
+            <a class="btn btn-primary btn-lg" href="{% url 'payments:payment' %}" role="button">Make a Payment</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Secure Payments</h5>
+                <p class="card-text">All transactions are secured with industry-standard encryption and fraud detection.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-credit-card fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Multiple Payment Options</h5>
+                <p class="card-text">Accept all major credit and debit cards through our Stripe integration.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Track Your Payments</h5>
+                <p class="card-text">View your payment history and track the status of all transactions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

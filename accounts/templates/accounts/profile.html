@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Your Profile</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>First Name:</strong></div>
+                        <div class="col-sm-9">{{ user.first_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Last Name:</strong></div>
+                        <div class="col-sm-9">{{ user.last_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Email:</strong></div>
+                        <div class="col-sm-9">{{ user.email }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Date Joined:</strong></div>
+                        <div class="col-sm-9">{{ user.date_joined|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'payments:payment' %}" class="btn btn-primary">Make a Payment</a>
+                        <!-- THIS IS THE LINE THAT WAS CHANGED -->
+                        <a href="{% url 'account_logout' %}" class="btn btn-secondary">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
