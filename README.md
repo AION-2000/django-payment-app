@@ -100,7 +100,7 @@ django_payment_app/
 
 **1. Clone and Navigate**
 ```bash
-git clone https://github.com/yourusername/django-payment-app.git
+git clone https://github.com/AION-2000/django-payment-app.git
 cd django-payment-app
 ```
 
